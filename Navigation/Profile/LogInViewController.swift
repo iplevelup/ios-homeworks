@@ -21,6 +21,21 @@ class LogInViewController: UIViewController {
         return scrollView
     }()
     
+    private let contentView: UIView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.backgroundColor = .white
+        return $0
+    }(UIView())
+    
+    private let vkLogoImage: UIImageView = {
+        let view = UIImageView()
+        view.backgroundColor = .white
+        view.clipsToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.image = UIImage(named: "logo")
+        return view
+    }()
+    
     private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -34,14 +49,6 @@ class LogInViewController: UIViewController {
         return stackView
     }()
     
-    private let vkLogoImage: UIImageView = {
-        let view = UIImageView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        view.backgroundColor = .white
-        view.clipsToBounds = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.image = UIImage(named: "logo")
-        return view
-    }()
     
     private let textField1: UITextField = {
         let text1 = UITextField()
@@ -50,8 +57,7 @@ class LogInViewController: UIViewController {
         text1.textColor = .black
         text1.font = .systemFont(ofSize: 16)
         text1.autocapitalizationType = .none
-        text1.placeholder = "Password"
-        text1.isSecureTextEntry = true
+        text1.placeholder = "Email or phone"
         text1.layer.borderColor = UIColor.lightGray.cgColor
         text1.layer.borderWidth = 0.5
         text1.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: text1.frame.height))
@@ -67,7 +73,8 @@ class LogInViewController: UIViewController {
         text2.textColor = .black
         text2.font = .systemFont(ofSize: 16)
         text2.autocapitalizationType = .none
-        text2.placeholder = "Email or phone"
+        text2.placeholder = "Password"
+        text2.isSecureTextEntry = true
         text2.layer.borderColor = UIColor.lightGray.cgColor
         text2.layer.borderWidth = 0.5
         text2.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: text2.frame.height))
@@ -82,59 +89,26 @@ class LogInViewController: UIViewController {
         button.layer.cornerRadius = 10
         button.setTitle("Log in", for: .normal)
         button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        
-         if button.isSelected {
-             button.alpha = 0.8 }
-         else if  button.isHighlighted {
-             button.alpha = 0.8
-         }
-         else if !button.isEnabled {
-             button.alpha = 0.8
-         } else { button.alpha = 1
-         }
-        
         return button
     }()
     
-    @objc func buttonTapped(sender: UIButton){
-         if myButton.isSelected {
-             myButton.alpha = 0.8
-         } else if myButton.isHighlighted {
-             myButton.alpha = 0.8
-         } else if !myButton.isEnabled {
-             myButton.alpha = 0.8
-         } else {
-             myButton.alpha = 1
-         }
-
-         let profile = ProfileViewController()
-         self.navigationController?.pushViewController(profile, animated: true)
-     }
     
      override func viewDidLoad() {
-         super.viewDidLoad()
-         self.configureSubviews()
-         self.setupConstraints()
-         let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
-        view.addGestureRecognizer(tap)
+        super.viewDidLoad()
+        layout()
+        view.backgroundColor = .white
+        navigationController?.navigationBar.isHidden = true
+        textField1.delegate = self
+        textField2.delegate = self
      }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
         nc.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         nc.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
-    @objc func adjustForKeyboard (notification: Notification){
-        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
-            let keyboardRectangle = keyboardFrame.cgRectValue
-            let keyboardHeight = keyboardRectangle.height
-            let contentOffset: CGPoint = notification.name == UIResponder.keyboardWillHideNotification ? .zero : CGPoint(x: 0, y: keyboardHeight/2)
-            self.scrollView.contentOffset = contentOffset
-        }
-    }
-
+    // Переводим HEX в UIColor
     private func hexStringToUIColor (hex:String) -> UIColor {
         var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         
@@ -157,63 +131,85 @@ class LogInViewController: UIViewController {
         )
     }
     
-     @objc func dismissKeyboard() {
-         view.endEditing(true)
-     }
+    private func layout() {
 
-     @objc func keyboardWillShow(notification: NSNotification) {
-         if let kbdSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-             scrollView.contentOffset = CGPoint(x: 0, y: kbdSize.height * 0.1)
-             scrollView.scrollIndicatorInsets = UIEdgeInsets(top:0, left:0, bottom: kbdSize.height, right: 0)
-         }
-     }
+        view.addSubview(scrollView)
 
-     @objc func keyboardWillHide(notification: NSNotification){
-         scrollView.contentOffset = CGPoint.zero
-     }
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
+        ])
 
+        scrollView.addSubview(contentView)
 
-     private func configureSubviews () {
-         self.navigationController?.navigationBar.isHidden = true
-         self.view.addSubview(self.scrollView)
-         scrollView.addSubview(vkLogoImage)
-         scrollView.addSubview(stackView)
-         stackView.addArrangedSubview(textField1)
-         stackView.addArrangedSubview(textField2)
-         stackView.addArrangedSubview(myButton)
-     }
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            contentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
+            contentView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor)
+        ])
 
-     private func setupConstraints() {
-         let scrollViewTopConstraint = self.scrollView.topAnchor.constraint(equalTo: self.view.topAnchor)
-         let scrollViewRightConstraint = self.scrollView.rightAnchor.constraint(equalTo: self.view.rightAnchor)
-         let scrollViewBottomConstraint = self.scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
-         let scrollViewLeftConstraint = self.scrollView.leftAnchor.constraint(equalTo: self.view.leftAnchor)
+        [textField1, textField2].forEach { stackView.addArrangedSubview($0) }
+        [vkLogoImage, stackView, myButton].forEach { contentView.addSubview($0) }
 
-         let vkImageTopConstraint = self.vkLogoImage.topAnchor.constraint(equalTo: self.stackView.topAnchor, constant: -70)
-         vkImageTopConstraint.priority = .defaultLow
-         let vkImageCenterXConstraint = self.vkLogoImage.centerXAnchor.constraint(equalTo: self.scrollView.centerXAnchor)
-         let vkImageHeightConstraint = self.vkLogoImage.heightAnchor.constraint(equalToConstant: 100)
-         let vkImageWidthConstraint = self.vkLogoImage.widthAnchor.constraint(equalToConstant: 100)
+        NSLayoutConstraint.activate([
+            vkLogoImage.topAnchor.constraint(equalTo: self.scrollView.topAnchor, constant: 100),
+            vkLogoImage.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            vkLogoImage.widthAnchor.constraint(equalToConstant: 100),
+            vkLogoImage.heightAnchor.constraint(equalToConstant: 100),
 
-         let stackViewCenterXConstraint = self.stackView.centerXAnchor.constraint(equalTo: self.scrollView.centerXAnchor)
-         let stackViewCenterYConstraint = self.stackView.centerYAnchor.constraint(equalTo: self.scrollView.centerYAnchor)
-         let stackViewLeadingConstraint = self.stackView.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor, constant: 16)
-         let stackViewTrailingConstraint = self.stackView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor, constant: -16)
+            stackView.topAnchor.constraint(equalTo: vkLogoImage.bottomAnchor, constant: 50),
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            stackView.heightAnchor.constraint(equalToConstant: 100),
 
-         let text1HeightConstraint = self.textField1.heightAnchor.constraint(equalToConstant: 50)
-         let text2HeightConstraint = self.textField2.heightAnchor.constraint(equalToConstant: 50)
-         let text2TopConstraint = self.textField2.topAnchor.constraint(equalTo: self.textField1.bottomAnchor)
-         let buttonHeightConstraint = self.myButton.heightAnchor.constraint(equalToConstant: 50)
-         let buttonHeightConstraint2 = self.myButton.topAnchor.constraint(equalTo: vkLogoImage.bottomAnchor, constant: 116)
-         let text1TopConstraint = self.textField1.topAnchor.constraint(greaterThanOrEqualTo: vkLogoImage.bottomAnchor)
+            myButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+            myButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16),
+            myButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            myButton.heightAnchor.constraint(equalToConstant: 50),
 
+            textField1.topAnchor.constraint(equalTo: stackView.topAnchor),
+            textField1.widthAnchor.constraint(equalTo: stackView.widthAnchor),
+            textField1.heightAnchor.constraint(equalToConstant: 50),
 
-         NSLayoutConstraint.activate([scrollViewTopConstraint, scrollViewLeftConstraint, scrollViewRightConstraint, scrollViewBottomConstraint, vkImageTopConstraint, vkImageCenterXConstraint, vkImageHeightConstraint, vkImageWidthConstraint,
-             stackViewLeadingConstraint, stackViewTrailingConstraint, stackViewCenterXConstraint, stackViewCenterYConstraint, text1HeightConstraint, text2HeightConstraint, buttonHeightConstraint,buttonHeightConstraint2, text2TopConstraint, text1TopConstraint
-                                     ])
-     }
- }
+            textField2.topAnchor.constraint(equalTo: textField1.bottomAnchor),
+            textField2.widthAnchor.constraint(equalTo: textField1.widthAnchor),
+            textField2.heightAnchor.constraint(equalToConstant: 50),
+        ])
+    }
 
+    func hideKeyboard() {
+        textField1.resignFirstResponder()
+        textField2.resignFirstResponder()
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        view.endEditing(true)
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        hideKeyboard()
+        return true
+    }
+
+    @objc func buttonTapped() {
+        let vc = ProfileViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    @objc func adjustForKeyboard (notification: Notification){
+        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keyboardRectangle.height
+            let contentOffset: CGPoint = notification.name == UIResponder.keyboardWillHideNotification ? .zero : CGPoint(x: 0, y: keyboardHeight/2)
+            self.scrollView.contentOffset = contentOffset
+        }
+    }
+}
+    
 // MARK: UITextFieldDelegate
 extension LogInViewController: UITextFieldDelegate {
 }
