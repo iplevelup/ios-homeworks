@@ -61,7 +61,7 @@ extension ProfileViewController: UITableViewDataSource {
             } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: PhotosTableViewCell.identifier, for: indexPath) as! PhotosTableViewCell
                 cell.setupLabel("")
-                //cell.delegate = self
+                cell.delegate = self
                 cell.selectionStyle = .none
                 return cell
             }
