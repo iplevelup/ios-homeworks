@@ -1,215 +1,252 @@
 //
-//  LogInViewController.swift
+//  LoginViewController.swift
 //  Navigation
 //
-//  Created by sv on 13.05.2022.
+//  Created by Tatyana sv on 30.04.2022.
 //
-
 
 import UIKit
 
-class LogInViewController: UIViewController {
-
-    private let ColorSet: String = "#4885CC"
+class LoginViewController: UIViewController, UITextFieldDelegate {
+ 
+    var i = false // проверка первого филда на пустоту
+    var j = false // проверка второго филда на пустоту
     
-    private let nc = NotificationCenter.default
+    let email = "mailmail" // стандартный мейл
+    let password = "password" // стандартный пароль
     
-    private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
+    private lazy var scrollView: UIScrollView = {
+            let scrollView = UIScrollView ()
+            scrollView.backgroundColor = .white
+            scrollView.translatesAutoresizingMaskIntoConstraints = false
+            return scrollView
+        } ()
+    
+    private lazy var stackView: UIStackView = {
+            let stackView = UIStackView ()
+            stackView.backgroundColor = .white
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            stackView.axis = .vertical
+            stackView.distribution = .fillProportionally
+            stackView.spacing = 16
+            return stackView
+        } ()
+    
+    private lazy var vkLogoImage: UIImageView = {
+        let imageView  = UIImageView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        imageView.backgroundColor = .white
+        imageView.clipsToBounds = true
+        imageView.layer.borderColor = UIColor.white.cgColor
+        imageView.image = UIImage(named: "logo.png")
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
     }()
     
-    private let contentView: UIView = {
-        $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.backgroundColor = .white
-        return $0
-    }(UIView())
-    
-    private let vkLogoImage: UIImageView = {
-        let view = UIImageView()
-        view.backgroundColor = .white
-        view.clipsToBounds = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.image = UIImage(named: "logo")
-        return view
-    }()
-    
-    private let stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.clipsToBounds = true
-        stackView.backgroundColor = .systemGray6
-        stackView.distribution = .fillProportionally
-        stackView.layer.borderColor = UIColor.lightGray.cgColor
-        stackView.layer.borderWidth = 0.5
-        stackView.layer.cornerRadius = 10
-        return stackView
-    }()
-    
-    
-    private let textField1: UITextField = {
-        let text1 = UITextField()
+    private lazy var textField1: UITextField = {
+       let text1 = UITextField()
+        let padding: CGFloat = 10
         text1.translatesAutoresizingMaskIntoConstraints = false
-        text1.backgroundColor = .systemGray6
         text1.textColor = .black
-        text1.font = .systemFont(ofSize: 16)
         text1.autocapitalizationType = .none
-        text1.placeholder = "Email or phone"
         text1.layer.borderColor = UIColor.lightGray.cgColor
         text1.layer.borderWidth = 0.5
-        text1.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: text1.frame.height))
-        text1.leftViewMode = .always
+        text1.layer.cornerRadius = 10
+        text1.backgroundColor = .systemGray6
+        text1.font = UIFont.systemFont(ofSize: 16)
+        text1.clearButtonMode = .whileEditing
+        text1.clearButtonMode = .unlessEditing
+        text1.clearButtonMode = .always
+        text1.placeholder = "E-mail"
+        text1.addPadding(.both(10))
+        text1.addTarget(self, action: #selector(textFieldDidChange(_:)),
+                        for: UIControl.Event.editingChanged)
         return text1
     }()
     
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        i = false
+        textField.backgroundColor = .white
+    }
     
-    private let textField2: UITextField = {
-        let text2 = UITextField()
-        text2.translatesAutoresizingMaskIntoConstraints = false
-        text2.backgroundColor = .systemGray6
+    private lazy var textField2: UITextField = {
+       let text2 = UITextField()
+        let padding: CGFloat = 10
         text2.textColor = .black
-        text2.font = .systemFont(ofSize: 16)
         text2.autocapitalizationType = .none
-        text2.placeholder = "Password"
-        text2.isSecureTextEntry = true
         text2.layer.borderColor = UIColor.lightGray.cgColor
         text2.layer.borderWidth = 0.5
-        text2.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: text2.frame.height))
-        text2.leftViewMode = .always
+        text2.layer.cornerRadius = 10
+        text2.backgroundColor = .systemGray6
+        text2.font = UIFont.systemFont(ofSize: 16)
+        text2.translatesAutoresizingMaskIntoConstraints = false
+        text2.isSecureTextEntry = true
+        text2.addPadding(.both(10))
+        text2.placeholder = "Password"
+        text2.addTarget(self, action: #selector(textFieldDidChange2(_:)),
+                        for: UIControl.Event.editingChanged)
         return text2
     }()
     
+    private lazy var warningLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .darkGray
+        label.font = UIFont.systemFont(ofSize: 10)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Слишком короткий пароль"
+        label.isHidden = true
+        return label
+    } ()
+    
+    @objc func textFieldDidChange2(_ textField: UITextField) {
+        j = false
+        if textField2.text!.count < 5 {
+            warningLabel.isHidden = false
+        } else {
+            warningLabel.isHidden = true
+        }
+        textField.backgroundColor = .white
+    }
+    
     private lazy var myButton: UIButton = {
+        let image = UIImage(named: "blue_pixel.png")
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.backgroundColor = hexStringToUIColor(hex: ColorSet)
         button.layer.cornerRadius = 10
-        button.setTitle("Log in", for: .normal)
+        button.setBackgroundImage(image, for: UIControl.State.normal)
+        button.setTitle("Log In", for: .normal)
+        button.titleLabel?.textColor = .white
+        button.backgroundColor = UIColor(named:"Color")
         button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        
+        if button.isSelected {
+            button.alpha = 0.8 }
+        else if  button.isHighlighted {
+            button.alpha = 0.8
+        }
+        else if !button.isEnabled {
+            button.alpha = 0.8
+        } else { button.alpha = 1
+        }
+        
         return button
     }()
     
-    
-     override func viewDidLoad() {
+    @objc func buttonTapped(sender: UIButton)
+    {
+        if myButton.isSelected {
+            myButton.alpha = 0.8
+        } else if myButton.isHighlighted {
+            myButton.alpha = 0.8
+        } else if !myButton.isEnabled {
+            myButton.alpha = 0.8
+        } else {
+            myButton.alpha = 1
+        }
+        
+        if textField1.text == "" {
+            textField1.backgroundColor = .red
+            i = true
+        }
+        if textField2.text == "" {
+            textField2.backgroundColor = .red
+            j = true
+        }
+        if textField2.text!.count < 5 && j == false {
+            j = true
+            warningLabel.isHidden = false
+        }
+        
+        if i == false && j == false {
+            if textField1.text == email && textField2.text == password {
+                let profile = ProfileViewController()
+                self.navigationController?.pushViewController(profile, animated: true)
+            } else {
+                let alert = UIAlertController (title: "Неверная комбинация логина и пароля", message: "", preferredStyle: .alert)
+                let okButton = UIAlertAction (title: "OK", style: .default, handler: {action in print ("OK")} )
+                alert.addAction(okButton)
+                present (alert, animated: true, completion: nil)
+            }
+        }
+     
+    }
+
+    override func viewDidLoad() {
         super.viewDidLoad()
-        layout()
-        view.backgroundColor = .white
-        navigationController?.navigationBar.isHidden = true
-        textField1.delegate = self
-        textField2.delegate = self
-     }
+        self.configureSubviews()
+        self.setupConstraints()
+        let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
+       view.addGestureRecognizer(tap)
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        nc.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
-        nc.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(LoginViewController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(LoginViewController.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    // Переводим HEX в UIColor
-    private func hexStringToUIColor (hex:String) -> UIColor {
-        var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        
-        if (cString.hasPrefix("#")) {
-            cString.remove(at: cString.startIndex)
-        }
-        
-        if ((cString.count) != 6) {
-            return UIColor.gray
-        }
-        
-        var rgbValue:UInt64 = 0
-        Scanner(string: cString).scanHexInt64(&rgbValue)
-        
-        return UIColor(
-            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
-            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
-            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
-            alpha: CGFloat(1.0)
-        )
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    private func layout() {
-
-        view.addSubview(scrollView)
-
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: self.view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
-        ])
-
-        scrollView.addSubview(contentView)
-
-        NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            contentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
-            contentView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor)
-        ])
-
-        [textField1, textField2].forEach { stackView.addArrangedSubview($0) }
-        [vkLogoImage, stackView, myButton].forEach { contentView.addSubview($0) }
-
-        NSLayoutConstraint.activate([
-            vkLogoImage.topAnchor.constraint(equalTo: self.scrollView.topAnchor, constant: 100),
-            vkLogoImage.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            vkLogoImage.widthAnchor.constraint(equalToConstant: 100),
-            vkLogoImage.heightAnchor.constraint(equalToConstant: 100),
-
-            stackView.topAnchor.constraint(equalTo: vkLogoImage.bottomAnchor, constant: 50),
-            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            stackView.heightAnchor.constraint(equalToConstant: 100),
-
-            myButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            myButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16),
-            myButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-            myButton.heightAnchor.constraint(equalToConstant: 50),
-
-            textField1.topAnchor.constraint(equalTo: stackView.topAnchor),
-            textField1.widthAnchor.constraint(equalTo: stackView.widthAnchor),
-            textField1.heightAnchor.constraint(equalToConstant: 50),
-
-            textField2.topAnchor.constraint(equalTo: textField1.bottomAnchor),
-            textField2.widthAnchor.constraint(equalTo: textField1.widthAnchor),
-            textField2.heightAnchor.constraint(equalToConstant: 50),
-        ])
-    }
-
-    func hideKeyboard() {
-        textField1.resignFirstResponder()
-        textField2.resignFirstResponder()
-    }
-
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    @objc func dismissKeyboard() {
         view.endEditing(true)
     }
-
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        hideKeyboard()
-        return true
-    }
-
-    @objc func buttonTapped() {
-        let vc = ProfileViewController()
-        navigationController?.pushViewController(vc, animated: true)
-    }
-
-    @objc func adjustForKeyboard (notification: Notification){
-        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
-            let keyboardRectangle = keyboardFrame.cgRectValue
-            let keyboardHeight = keyboardRectangle.height
-            let contentOffset: CGPoint = notification.name == UIResponder.keyboardWillHideNotification ? .zero : CGPoint(x: 0, y: keyboardHeight/2)
-            self.scrollView.contentOffset = contentOffset
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let kbdSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            scrollView.contentOffset = CGPoint(x: 0, y: kbdSize.height * 0.1)
+            scrollView.scrollIndicatorInsets = UIEdgeInsets(top:0, left:0, bottom: kbdSize.height, right: 0)
         }
     }
-}
+
+    @objc func keyboardWillHide(notification: NSNotification){
+        scrollView.contentOffset = CGPoint.zero
+    }
+
     
-// MARK: UITextFieldDelegate
-extension LogInViewController: UITextFieldDelegate {
+    private func configureSubviews () {
+        self.navigationController?.navigationBar.isHidden = true
+        self.view.addSubview(self.scrollView)
+        scrollView.addSubview(vkLogoImage)
+        scrollView.addSubview(stackView)
+        stackView.addArrangedSubview(textField1)
+        stackView.addArrangedSubview(textField2)
+        stackView.addArrangedSubview(warningLabel)
+        stackView.addArrangedSubview(myButton)
+    }
+
+    private func setupConstraints() {
+        let scrollViewTopConstraint = self.scrollView.topAnchor.constraint(equalTo: self.view.topAnchor)
+        let scrollViewRightConstraint = self.scrollView.rightAnchor.constraint(equalTo: self.view.rightAnchor)
+        let scrollViewBottomConstraint = self.scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+        let scrollViewLeftConstraint = self.scrollView.leftAnchor.constraint(equalTo: self.view.leftAnchor)
+
+        let vkImageTopConstraint = self.vkLogoImage.topAnchor.constraint(equalTo: self.scrollView.topAnchor, constant: 120)
+        vkImageTopConstraint.priority = .defaultLow
+        let vkImageCenterXConstraint = self.vkLogoImage.centerXAnchor.constraint(equalTo: self.scrollView.centerXAnchor)
+        let vkImageHeightConstraint = self.vkLogoImage.heightAnchor.constraint(equalToConstant: 100)
+        let vkImageWidthConstraint = self.vkLogoImage.widthAnchor.constraint(equalToConstant: 100)
+
+        let stackViewCenterXConstraint = self.stackView.centerXAnchor.constraint(equalTo: self.scrollView.centerXAnchor)
+        let stackViewCenterYConstraint = self.stackView.centerYAnchor.constraint(equalTo: self.scrollView.centerYAnchor)
+        let stackViewLeadingConstraint = self.stackView.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor, constant: 16)
+        let stackViewTrailingConstraint = self.stackView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor, constant: -16)
+
+        let text1HeightConstraint = self.textField1.heightAnchor.constraint(equalToConstant: 50)
+        let text2HeightConstraint = self.textField2.heightAnchor.constraint(equalToConstant: 50)
+        let text2TopConstraint = self.textField2.topAnchor.constraint(equalTo: self.textField1.bottomAnchor)
+        let buttonHeightConstraint = self.myButton.heightAnchor.constraint(equalToConstant: 50)
+        let text1TopConstraint = self.textField1.topAnchor.constraint(greaterThanOrEqualTo: vkLogoImage.bottomAnchor)
+
+        let errorLabelHeightConstraint = self.warningLabel.heightAnchor.constraint(equalToConstant: 20)
+
+
+        NSLayoutConstraint.activate([scrollViewTopConstraint, scrollViewLeftConstraint, scrollViewRightConstraint, scrollViewBottomConstraint, vkImageTopConstraint, vkImageCenterXConstraint, vkImageHeightConstraint, vkImageWidthConstraint,
+            stackViewLeadingConstraint, stackViewTrailingConstraint, stackViewCenterXConstraint, stackViewCenterYConstraint, text1HeightConstraint, text2HeightConstraint, buttonHeightConstraint, text2TopConstraint, text1TopConstraint, errorLabelHeightConstraint
+                                    ])
+
+    }
 }
+

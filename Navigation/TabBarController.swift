@@ -2,13 +2,14 @@
 //  TabBarController.swift
 //  Navigation
 //
-//  Created by sv on 02.05.2022.
+//  Created by sv on 27.05.2022.
 //
 
 import UIKit
 
 class TabBarController: UITabBarController {
-    private enum TabBarItem {
+    
+        private enum TabBarItem {
         case feed
         case profile
         
@@ -16,41 +17,44 @@ class TabBarController: UITabBarController {
             switch self {
             case .feed:
                 return "Лента"
+                
             case .profile:
                 return "Профиль"
+                
             }
         }
-        
         var image: UIImage? {
             switch self {
             case .feed:
-                return UIImage (systemName: "person")
+                return UIImage(systemName: "person.3")
             case .profile:
-                return UIImage (systemName: "note.text")
+                return UIImage(systemName: "person.crop.circle.fill")
+                
             }
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tabBar.backgroundColor = .gray
         self.setupTabBar()
     }
-    
+
     func setupTabBar() {
         let items: [TabBarItem] = [.feed, .profile]
-        self.viewControllers = items.map({ tabBarItem in
+        
+        self.viewControllers = items.map( { tabBarItem in
             switch tabBarItem {
-            case .feed:
-                return UINavigationController (rootViewController: FeedViewController())
-            case .profile:
-                return UINavigationController (rootViewController: LogInViewController())
+                case .feed:
+                    return UINavigationController(rootViewController: FeedViewController())
+                case .profile:
+                    return UINavigationController(rootViewController: LoginViewController())
+                
             }
         })
-        
         self.viewControllers?.enumerated().forEach({ (index, vc) in
             vc.tabBarItem.title = items[index].title
             vc.tabBarItem.image = items[index].image
         })
     }
+    
 }

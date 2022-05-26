@@ -2,7 +2,7 @@
 //  FeedViewController.swift
 //  Navigation
 //
-//  Created by sv on 02.05.2022.
+//  Created by sv on 17.04.2022.
 //
 
 import UIKit
@@ -13,74 +13,26 @@ class FeedViewController: UIViewController {
         var title: String
     }
     
-    let firstButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
-        button.layer.cornerRadius = 12
-        button.clipsToBounds = true
-        button.backgroundColor = .systemBlue
-        button.setTitle("Перейти на пост", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
+    let lastPost = Post.init(title: "Мой последний пост")
 
-
-    let secondButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
-        button.layer.cornerRadius = 12
-        button.clipsToBounds = true
-        button.backgroundColor = .systemBlue
-        button.setTitle("Перейти на пост", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-
-    private lazy var buttonsStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.distribution = .fillEqually
-        stackView.spacing = 10
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.addSubview(buttonsStackView)
-        self.buttonsStackView.addArrangedSubview(firstButton)
-        self.buttonsStackView.addArrangedSubview(secondButton)
-        self.activateConstraints()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.prefersLargeTitles = true
+        self.view.backgroundColor = .systemGray6
         self.navigationItem.title = "Лента"
+        
+        let switchToPostButton = UIButton (frame: CGRect (x: 50, y: 250, width: 200, height: 50))
+        switchToPostButton.backgroundColor = .systemBlue
+        switchToPostButton.layer.cornerRadius = 12
+        switchToPostButton.layer.masksToBounds = true
+        switchToPostButton.center = self.view.center
+        switchToPostButton.setTitle ("Перейти к посту", for: .normal)
+        switchToPostButton.addTarget(self, action: #selector (pressSwitch), for: .touchUpInside)
+        self.view.addSubview(switchToPostButton)
     }
     
-    private func activateConstraints() {
-
-        let firstStackViewConstraint =  buttonsStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        let secondStackViewConstraint = buttonsStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-
-        let leadingFirstButtonConstraint = self.firstButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40)
-        let trailingFirstButtonConstraint = self.firstButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
-
-        let leadingSecondButtonConstraint = self.secondButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40)
-        let trailingSecondButtonConstraint = self.secondButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
-
-        NSLayoutConstraint.activate([
-            firstStackViewConstraint, secondStackViewConstraint, leadingFirstButtonConstraint, trailingFirstButtonConstraint, leadingSecondButtonConstraint, trailingSecondButtonConstraint
-        ])
-    }
-    
-    @objc private func didTapButton() {
-        let postVC = PostViewController()
-        postVC.navigationItem.title = Post(title: "Мой пост").title
-        self.navigationController?.pushViewController(postVC, animated: true)
+    @objc private func pressSwitch() {
+        let post = PostViewController()
+        post.navigationItem.title = lastPost.title
+        self.navigationController?.pushViewController(post, animated: true)
     }
 }
-
